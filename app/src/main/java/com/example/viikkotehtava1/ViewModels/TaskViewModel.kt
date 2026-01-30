@@ -1,62 +1,74 @@
-package com.example.viikkotehtava1.ViewModels
+package com.example.viikkotehtava1.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.viikkotehtava1.domain.Task
-import com.example.viikkotehtava1.domain.mockTasks
-import com.example.viikkotehtava1.domain.addTask
-import com.example.viikkotehtava1.domain.toggleDoneById
-import com.example.viikkotehtava1.domain.removeTask
-import com.example.viikkotehtava1.domain.sortByDueDate
-import com.example.viikkotehtava1.domain.filterByDone
+import androidx.lifecycle.viewModelScope
+import com.example.viikkotehtava1.model.Task
+import com.example.viikkotehtava1.model.mockTasks
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 class TaskViewModel : ViewModel() {
 
-    var tasks by mutableStateOf(listOf<Task>())
-        private set
+    private val _allTasks = MutableStateFlow<List<Task>>(emptyList())
+    private val _showOnlyDone = MutableStateFlow(false)
 
-    private var allTasks = listOf<Task>()
-    private var showOnlyDone = false
+    private val _selectedTask = MutableStateFlow<Task?>(null)
+    val selectedTask: StateFlow<Task?> = _selectedTask
+
+    val tasks: StateFlow<List<Task>> =
+        combine(_allTasks, _showOnlyDone) { tasks, showOnlyDone ->
+            if (showOnlyDone) {
+                tasks.filter { it.done }
+            } else {
+                tasks
+            }
+        } .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     init {
-        allTasks = mockTasks
-        tasks = allTasks
+        _allTasks.value = mockTasks
     }
 
     fun addTask(task: Task) {
-        allTasks = addTask(allTasks, task)
-        tasks = allTasks
+        _allTasks.value += task
     }
 
     fun toggleDone(id: Int) {
-        allTasks = toggleDoneById(allTasks, id)
-        tasks = allTasks
-    }
-
-    fun removeTask(id: Int) {
-        allTasks = removeTask(allTasks, id)
-        tasks = allTasks
-    }
-
-    fun sortByDueDate() {
-        tasks = sortByDueDate(tasks)
-    }
-
-    fun toggleShowOnlyDone() {
-        showOnlyDone = !showOnlyDone
-        updateTasks()
-    }
-
-    fun isShowingOnlyDone(): Boolean = showOnlyDone
-
-    private fun updateTasks() {
-        tasks = if (showOnlyDone) {
-            filterByDone(allTasks, true)
-        } else {
-            allTasks
+        _allTasks.value = _allTasks.value.map {
+            if (it.id == id) it.copy(done = !it.done) else it
         }
     }
 
+    fun removeTask(id: Int) {
+        _allTasks.value = _allTasks.value.filter { it.id != id }
+    }
+
+    fun selectTask(task: Task) {
+        _selectedTask.value = task
+    }
+
+    fun updateTask(updated: Task) {
+        _allTasks.value = _allTasks.value.map {
+            if (it.id == updated.id) updated else it
+        }
+        _selectedTask.value = null
+    }
+
+    fun closeDialog() {
+        _selectedTask.value = null
+    }
+
+    fun sortByDueDate() {
+        _allTasks.value = _allTasks.value.sortedBy { it.dueDate }
+    }
+
+    fun toggleShowOnlyDone() {
+        _showOnlyDone.value = !_showOnlyDone.value
+    }
 }

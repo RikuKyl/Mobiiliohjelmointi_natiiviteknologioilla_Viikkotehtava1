@@ -1,4 +1,4 @@
-package com.example.viikkotehtava1.domain
+package com.example.viikkotehtava1.model
 
 val mockTasks = listOf(
     Task(1,"Task 1", "Description 1", 1, "2023-10-31",false),
