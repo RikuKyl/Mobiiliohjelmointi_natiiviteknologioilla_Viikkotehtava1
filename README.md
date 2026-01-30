@@ -7,14 +7,14 @@ Jokaisella taskilla on yksi oma nappi
  Kääntää taskin tilan TRUE --> FALSE tai toisinpäin
 
 
-Miten Compose tilanhallinta toimii?
+## Miten Compose tilanhallinta toimii?
 Compose tilanhallinta perustuu käyttöliittymämalliin, missä käyttöliittymä kertoo sovelluksen nykyistä tilaa. Compose seuraa tilaa ja silloin kun tilan arvo muuttuu, compose "uudelleenrakentaa" automaattisesti ne käyttöliittymän osat, jotka käyttävät kyseistä tilaa.
 
-Miksi ViewModel on parempi kuin pelkkä remember?
+## Miksi ViewModel on parempi kuin pelkkä remember?
 ViewModel erottaa sovelluslogiikan käyttöliittymästä, koodi on selkeämpää ja helpommin testattavissa. ViewModel myös säilyttää tilan konfiguraation muutosten yli.
 
 
-Mikä on MVVM ja miksi se on hyödyllinen Compose-sovelluskissa?
+## Mikä on MVVM ja miksi se on hyödyllinen Compose-sovellusksissa?
 MVVM tulee sanoista View, Model ja ViewModel. MVVM:n hyödyt:
   **View**
   - Vain UI-renderöinti
@@ -41,5 +41,5 @@ MVVM tulee sanoista View, Model ja ViewModel. MVVM:n hyödyt:
   - Hyvä elinkaarituki: tila säilyy konfiguraatiomuutoksissa
   - Skaalautuva rakenne: toimii hyvin myös isommissa Compose-sovelluksissa
 
-Miten stateFlow toimii?
+## Miten stateFlow toimii?
 StateFlow on graafinen ohjelmointiympäristö, joka toimii Simulinkin sisällä ja kuvaa järjestelmän käyttäytymistä tilakaavioiden, vuokaavioiden ja totuustaulukoiden avulla. Se ohjaa logiikkaa reagoimalla syötteisiin, tapahtumiin ja aikoihin, mahdollistaen monimutkaisten, ajasta riippuvien järjestelmien simuloinnin ja testauksen. 
