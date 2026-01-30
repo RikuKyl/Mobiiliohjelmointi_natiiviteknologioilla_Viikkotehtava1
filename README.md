@@ -12,3 +12,34 @@ Compose tilanhallinta perustuu käyttöliittymämalliin, missä käyttöliittym�
 
 Miksi ViewModel on parempi kuin pelkkä remember?
 ViewModel erottaa sovelluslogiikan käyttöliittymästä, koodi on selkeämpää ja helpommin testattavissa. ViewModel myös säilyttää tilan konfiguraation muutosten yli.
+
+
+Mikä on MVVM ja miksi se on hyödyllinen Compose-sovelluskissa?
+MVVM tulee sanoista View, Model ja ViewModel. MVVM:n hyödyt:
+  View
+  -Vain UI-renderöinti
+  -Ei liiketoimintalogiikkaa
+  -Helppo testata Preview:lla
+  -Uudelleenkäytettävät komponentit
+
+  Model
+  -Eristetty datalogiikka
+  -Vaihdettavat lähteet
+  -Testattavissa mock-datalla
+  -Offline-tuki helppo lisätä
+
+  ViewModel
+  -Säilyttää tilan rotationissa
+  -Sisältää UI-logiikan
+  -Helppo yksikkötestata
+  -Ei Android-riippuvuuksia
+
+  Tiivistettynä:
+  -Selkeä vastuunjako: UI pysyy kevyenä, logiikka ViewModelissa
+  -Luonteva state-hallinta: ViewModel tarjoaa tilan, Compose renderöi sen
+  -Helppo testata: ViewModel ei riipu UI:sta
+  -Hyvä elinkaarituki: tila säilyy konfiguraatiomuutoksissa
+  -Skaalautuva rakenne: toimii hyvin myös isommissa Compose-sovelluksissa
+
+Miten stateFlow toimii?
+StateFlow on graafinen ohjelmointiympäristö, joka toimii Simulinkin sisällä ja kuvaa järjestelmän käyttäytymistä tilakaavioiden, vuokaavioiden ja totuustaulukoiden avulla. Se ohjaa logiikkaa reagoimalla syötteisiin, tapahtumiin ja aikoihin, mahdollistaen monimutkaisten, ajasta riippuvien järjestelmien simuloinnin ja testauksen. 
