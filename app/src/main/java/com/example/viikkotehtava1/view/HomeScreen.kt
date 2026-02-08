@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,63 +14,57 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.viikkotehtava1.model.Task
 import com.example.viikkotehtava1.viewmodel.TaskViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: TaskViewModel,
+    onTaskClick: (Int) -> Unit = {},
+    onAddClick: () -> Unit = {},
+    onNavigateCalendar: () -> Unit = {},
+    onNavigateSettings: () -> Unit = {}
+) {
 
     val tasks by viewModel.tasks.collectAsState()
     val selectedTask by viewModel.selectedTask.collectAsState()
+    val addTaskFlag by viewModel.addTaskDialogVisible.collectAsState()
 
-    var taskName by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
 
-        Text(
-            text = "Task List",
-            style = MaterialTheme.typography.headlineMedium
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+
+        TopAppBar(
+            title = { Text("Task List") },
+            actions = {
+                IconButton(onClick = onNavigateCalendar) {
+                    Icon(
+                        Icons.Default.CalendarMonth,
+                        contentDescription = "Calendar"
+                    )
+                }
+
+                IconButton(onClick = onNavigateSettings) {
+                    Icon(Icons.Default.Settings, contentDescription = "Settings")
+                }
+
+                IconButton(onClick = {
+                    viewModel.addTaskDialogVisible.value = true
+                }) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Add task"
+                    )
+                }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = taskName,
-                onValueChange = { taskName = it },
-                label = { Text("Taskin nimi") },
-                modifier = Modifier.weight(1f)
-            )
 
-            Spacer(modifier = Modifier.width(8.dp))
 
-            Button(onClick = {
-                if (taskName.isNotBlank()) {
-
-                    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val formattedDate = formatter.format(Date())
-
-                    viewModel.addTask(
-                        Task(
-                            id = tasks.size + 1,
-                            title = taskName,
-                            description = "",
-                            priority = 1,
-                            dueDate = formattedDate,
-                            done = false
-                        )
-                    )
-
-                    taskName = ""
-                }
-            }) {
-                Text("Lisää")
-            }
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -76,7 +72,6 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
             Button(onClick = { viewModel.sortByDueDate() }) {
                 Text("Järjestä päivämäärän mukaan")
             }
-
             Button(onClick = { viewModel.toggleShowOnlyDone() }) {
                 Text("Filtteröi tehdyt")
             }
@@ -84,10 +79,7 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
+        LazyColumn {
             items(tasks) { task ->
                 Card(
                     modifier = Modifier
@@ -96,23 +88,19 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
                         .clickable { viewModel.selectTask(task) }
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.padding(16.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
 
                         Checkbox(
                             checked = task.done,
-                            onCheckedChange = {
-                                viewModel.toggleDone(task.id)
-                            }
+                            onCheckedChange = { viewModel.toggleDone(task.id) }
                         )
 
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = task.title)
-                            Text(text = task.description)
-                            Text(text = "DueDate: ${task.dueDate}")
+                            Text(task.title, style = MaterialTheme.typography.titleMedium)
+                            Text(task.description)
+                            Text("Due: ${task.dueDate}")
                         }
 
                         Button(onClick = { viewModel.removeTask(task.id) }) {
@@ -128,7 +116,15 @@ fun HomeScreen(viewModel: TaskViewModel = viewModel()) {
         DetailDialog(
             task = selectedTask!!,
             onClose = { viewModel.closeDialog() },
-            onUpdate = { viewModel.updateTask(it) }
+            onUpdate = { viewModel.updateTask(it) },
+            onDelete = { viewModel.removeTask(it) }
+        )
+    }
+
+    if (addTaskFlag) {
+        AddDialog(
+            onClose = { viewModel.addTaskDialogVisible.value = false },
+            onUpdate = { viewModel.addTask(it) }
         )
     }
 }

@@ -14,7 +14,6 @@ class TaskViewModel : ViewModel() {
 
     private val _allTasks = MutableStateFlow<List<Task>>(emptyList())
     private val _showOnlyDone = MutableStateFlow(false)
-
     private val _selectedTask = MutableStateFlow<Task?>(null)
     val selectedTask: StateFlow<Task?> = _selectedTask
 
@@ -25,11 +24,13 @@ class TaskViewModel : ViewModel() {
             } else {
                 tasks
             }
-        } .stateIn(
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    val addTaskDialogVisible = MutableStateFlow(false)
 
     init {
         _allTasks.value = mockTasks
@@ -37,6 +38,7 @@ class TaskViewModel : ViewModel() {
 
     fun addTask(task: Task) {
         _allTasks.value += task
+        addTaskDialogVisible.value = false
     }
 
     fun toggleDone(id: Int) {
@@ -47,6 +49,11 @@ class TaskViewModel : ViewModel() {
 
     fun removeTask(id: Int) {
         _allTasks.value = _allTasks.value.filter { it.id != id }
+    }
+
+    fun openTask(id: Int) {
+        val task = _allTasks.value.find { it.id == id }
+        _selectedTask.value = task
     }
 
     fun selectTask(task: Task) {
